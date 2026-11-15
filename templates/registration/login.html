@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Sign in · PolarOps{% endblock %}
+{% block content %}
+<div class="auth-layout">
+  <section class="auth-story">
+    <a class="brand brand-light" href="{% url 'login' %}"><span class="brand-mark" aria-hidden="true"><i></i><b></b></span><span><strong>POLAROPS</strong><small>EXPEDITION SYSTEMS</small></span></a>
+    <div class="story-copy"><span class="eyebrow eyebrow-light">MISSION-CRITICAL OPERATIONS</span><h1>Ready for the world's most demanding frontiers.</h1><p>One workspace for people, equipment and supplies — from departure to safe return.</p><div class="story-metrics"><span><strong>7</strong><small>Polar stations</small></span><span><strong>24/7</strong><small>Field support</small></span><span><strong>1</strong><small>Shared mission view</small></span></div></div>
+    <small class="story-foot">Polar operations coordination workspace</small>
+  </section>
+  <section class="auth-form-wrap"><form class="auth-card" method="post">{% csrf_token %}
+    <span class="eyebrow">SECURE OPERATIONS PORTAL</span><h2>Welcome back</h2><p>Sign in to access your mission control center.</p>
+    {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+    <label for="{{ form.username.id_for_label }}">Username</label>{{ form.username }}
+    {% if form.username.errors %}<div class="field-error">{{ form.username.errors }}</div>{% endif %}
+    <label for="{{ form.password.id_for_label }}">Password</label>{{ form.password }}
+    {% if form.password.errors %}<div class="field-error">{{ form.password.errors }}</div>{% endif %}
+    <div class="auth-links"><a href="{% url 'password_reset' %}">Forgot password?</a></div>
+    {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+    <button class="button button-primary button-wide" type="submit">Sign in to PolarOps <span>→</span></button>
+    <div class="auth-divider"><span>New to this workspace?</span></div><a class="button button-secondary button-wide" href="{% url 'register' %}">Create an account</a>
+  </form></section>
+</div>
+{% endblock %}

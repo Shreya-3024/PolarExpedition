@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-intro"><div><span class="eyebrow">POLAR OPERATIONS / SEARCH</span><h1>Search results</h1><p>Matching records for “{{ query }}”.</p></div></div>
+<section class="panel search-results">{% for result in results %}<a href="{{ result.url }}"><span class="record-mark">⌕</span><span><strong>{{ result.title }}</strong><small>{{ result.subtitle }}</small></span><span>Open →</span></a>{% empty %}<div class="empty-state"><span>⌕</span><h2>No matching records</h2><p>Try a different name, ID, destination or location.</p></div>{% endfor %}</section>
+{% endblock %}

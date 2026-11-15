@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-intro"><div><span class="eyebrow">POLAR OPERATIONS / ALERT CENTER</span><h1>Notifications</h1><p>{{ unread_notifications }} unread update{{ unread_notifications|pluralize }} across your workspace.</p></div>{% if unread_notifications %}<form method="post">{% csrf_token %}<button class="button button-secondary" type="submit">Mark all as read</button></form>{% endif %}</div>
+<section class="panel notification-panel">
+  {% for notification in notifications %}<article class="notification-row {% if not notification.is_read %}unread{% endif %}">
+    <span class="notification-severity severity-{{ notification.severity }}">{{ notification.get_severity_display|slice:":1" }}</span>
+    <div class="notification-copy"><strong>{{ notification.title }}</strong><p>{{ notification.message }}</p><small>{{ notification.created_at|date:"d M Y · H:i" }}</small></div>
+    {% if not notification.is_read %}<form method="post">{% csrf_token %}<input type="hidden" name="notification_id" value="{{ notification.pk }}"><button class="text-button" type="submit">Mark read</button></form>{% else %}<span class="read-mark">Read</span>{% endif %}
+  </article>{% empty %}<div class="empty-state"><span>✓</span><h2>You're all caught up</h2><p>New alerts and operational updates will appear here.</p></div>{% endfor %}
+</section>
+{% endblock %}

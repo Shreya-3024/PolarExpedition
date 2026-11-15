@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-intro"><div><span class="eyebrow">POLAR OPERATIONS / INSIGHTS</span><h1>Reports &amp; analytics</h1><p>Operational performance and readiness across your expedition portfolio.</p></div><a class="button button-primary" href="{% url 'report_export' %}">↓ Export CSV</a></div>
+<section class="stats-grid report-stats">
+  <article class="stat-card"><span class="stat-symbol symbol-blue">⌖</span><span class="stat-label">Expeditions</span><strong>{{ expedition_total }}</strong><small>{{ active_expeditions }} active now</small></article>
+  <article class="stat-card"><span class="stat-symbol symbol-violet">▣</span><span class="stat-label">Assets</span><strong>{{ asset_total }}</strong><small>{{ deployed_assets }} deployed</small></article>
+  <article class="stat-card"><span class="stat-symbol symbol-green">▤</span><span class="stat-label">Inventory lines</span><strong>{{ inventory_total }}</strong><small>{{ low_stock }} at reorder level</small></article>
+  <article class="stat-card"><span class="stat-symbol symbol-cyan">⇢</span><span class="stat-label">Shipments</span><strong>{{ shipment_total }}</strong><small>{{ delayed_shipments }} delayed</small></article>
+  <article class="stat-card"><span class="stat-symbol symbol-orange">⚙</span><span class="stat-label">Maintenance</span><strong>{{ maintenance_total }}</strong><small>{{ overdue_maintenance }} overdue</small></article>
+</section>
+<div class="dashboard-grid">
+  <section class="panel panel-large"><div class="panel-heading"><div><h2>Expedition status</h2><p>Current distribution by mission</p></div><a class="text-link" href="{% url 'module_list' 'expeditions' %}">Open expeditions →</a></div>
+    <div class="report-bars">{% for expedition in expeditions %}<div><span>{{ expedition.name }}</span><span class="report-track"><i class="report-progress progress-{{ expedition.status }}"></i></span><b class="status status-{{ expedition.status }}">{{ expedition.get_status_display }}</b></div>{% empty %}<p class="empty-note">Add expedition records to start generating reports.</p>{% endfor %}</div>
+  </section>
+  <section class="panel"><div class="panel-heading"><div><h2>Readiness snapshot</h2><p>Items requiring follow-up</p></div></div>
+    <div class="readiness-list"><a href="{% url 'module_list' 'inventory' %}?status=low_stock"><span class="readiness-symbol warning-symbol">!</span><span><strong>Low inventory</strong><small>{{ low_stock }} items at or below reorder level</small></span><span>→</span></a><a href="{% url 'module_list' 'shipments' %}?status=delayed"><span class="readiness-symbol danger-symbol">!</span><span><strong>Delayed shipments</strong><small>{{ delayed_shipments }} shipments marked delayed</small></span><span>→</span></a><a href="{% url 'module_list' 'maintenance' %}?status=overdue"><span class="readiness-symbol danger-symbol">⚙</span><span><strong>Overdue maintenance</strong><small>{{ overdue_maintenance }} service tasks overdue</small></span><span>→</span></a></div>
+  </section>
+</div>
+{% endblock %}

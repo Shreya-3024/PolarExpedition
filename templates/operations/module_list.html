@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-intro">
+  <div><span class="eyebrow">POLAR OPERATIONS / {{ config.title|upper }}</span><h1>{{ config.title }}</h1><p>Search, review and manage your {{ config.singular }} records.</p></div>
+  <a class="button button-primary" href="{% url 'module_create' module %}">＋ Add {{ config.singular }}</a>
+</div>
+{% if module == "shipments" %}
+<section class="panel shipment-overview">
+  <div class="panel-heading"><div><h2>Live shipment tracking</h2><p>Route progress and delivery milestones</p></div><span class="live-pill"><i></i>{{ tracking_shipments|length }} in progress</span></div>
+  <div class="shipment-track-grid">
+    {% for shipment in tracking_shipments %}<article class="shipment-track-card">
+      <div class="shipment-track-head"><span class="record-code">{{ shipment.code }}</span><span class="status status-{{ shipment.get_status_display|slugify }}">{{ shipment.get_status_display }}</span></div>
+      <strong class="shipment-name">{{ shipment.name }}</strong>
+      <div class="route-labels"><span>{{ shipment.origin }}</span><span>{{ shipment.destination }}</span></div>
+      <div class="route-progress"><i style="width: {{ shipment.progress }}%"></i></div>
+      <div class="shipment-milestones">
+        <span class="milestone done">Registered</span>
+        <span class="milestone {% if shipment.status != 'pending' %}done{% endif %}">Dispatched</span>
+        <span class="milestone {% if shipment.status == 'in_transit' or shipment.status == 'delayed' or shipment.status == 'delivered' %}done{% endif %}">In transit</span>
+        <span class="milestone {% if shipment.status == 'delivered' %}done{% endif %}">Delivered</span>
+      </div>
+      <div class="shipment-track-footer"><span>{{ shipment.carrier }}</span><span>ETA {{ shipment.estimated_arrival|date:"d M Y" }}</span></div>
+    </article>{% empty %}<p class="empty-note">No active shipments to track.</p>{% endfor %}
+  </div>
+</section>
+{% endif %}
+<section class="panel table-panel">
+  <div class="table-toolbar">
+    <div><h2>All {{ module }}</h2><p>{{ page_obj.paginator.count }} record{{ page_obj.paginator.count|pluralize }} found</p></div>
+    <form class="filter-form" method="get">
+      <label class="table-search"><span>⌕</span><input type="search" name="q" value="{{ search_query }}" placeholder="Search {{ module }}…" aria-label="Search {{ module }}"></label>
+      <select class="form-control filter-select" name="status" aria-label="Filter by status"><option value="">All statuses</option>{% for value,label in status_options %}<option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+      {% if sort_key %}<input type="hidden" name="sort" value="{{ sort_key }}"><input type="hidden" name="direction" value="{{ sort_direction }}">{% endif %}
+      <button class="button button-secondary" type="submit">Filter</button>
+    </form>
+  </div>
+  <div class="table-scroll"><table><thead><tr>{% for header in headers %}<th>{% if header.key != "stock_status" %}<a class="sort-link" href="?q={{ search_query|urlencode }}&status={{ selected_status|urlencode }}&sort={{ header.key }}&direction={% if sort_key == header.key and sort_direction == 'asc' %}desc{% else %}asc{% endif %}">{{ header.label }}{% if sort_key == header.key %}<span>{% if sort_direction == "asc" %}↑{% else %}↓{% endif %}</span>{% endif %}</a>{% else %}{{ header.label }}{% endif %}</th>{% endfor %}<th class="actions-heading">Actions</th></tr></thead><tbody>
+    {% for row in rows %}<tr>
+      {% for cell in row.cells %}<td>{% if cell.is_code %}<a class="record-code" href="{% url 'module_detail' module row.object.pk %}">{{ cell.value }}</a>{% elif cell.key == "status" or cell.key == "availability" or cell.key == "condition" or cell.key == "stock_status" %}<span class="status status-{{ cell.value|slugify }}">{{ cell.value }}</span>{% else %}<span class="{% if forloop.first %}table-primary-text{% endif %}">{{ cell.value|default:"—" }}</span>{% endif %}</td>{% endfor %}
+      <td class="row-actions"><a href="{% url 'module_detail' module row.object.pk %}" aria-label="View details">View</a><a href="{% url 'module_update' module row.object.pk %}" aria-label="Edit record">Edit</a><a class="danger-link" href="{% url 'module_delete' module row.object.pk %}" aria-label="Delete record">Delete</a></td>
+    </tr>{% empty %}<tr><td class="empty-cell" colspan="{{ headers|length|add:1 }}">No records match your search. <a href="{% url 'module_create' module %}">Add the first {{ config.singular }}.</a></td></tr>{% endfor %}
+  </tbody></table></div>
+  {% if page_obj.paginator.num_pages > 1 %}<div class="pagination"><span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span><div>{% if page_obj.has_previous %}<a href="?q={{ search_query|urlencode }}&status={{ selected_status|urlencode }}&sort={{ sort_key|urlencode }}&direction={{ sort_direction|urlencode }}&page={{ page_obj.previous_page_number }}">← Previous</a>{% endif %}{% if page_obj.has_next %}<a href="?q={{ search_query|urlencode }}&status={{ selected_status|urlencode }}&sort={{ sort_key|urlencode }}&direction={{ sort_direction|urlencode }}&page={{ page_obj.next_page_number }}">Next →</a>{% endif %}</div></div>{% endif %}
+</section>
+{% endblock %}

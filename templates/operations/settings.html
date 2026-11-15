@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-intro"><div><span class="eyebrow">POLAR OPERATIONS / PREFERENCES</span><h1>Workspace settings</h1><p>Manage your profile and role in the operations workspace.</p></div></div>
+<section class="panel form-panel settings-panel"><div class="settings-heading"><span class="avatar avatar-large">{{ user.first_name|default:user.username|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}</span><div><h2>{{ user.get_full_name|default:user.username }}</h2><p>{{ user.username }}</p></div></div>
+  <form method="post">{% csrf_token %}<div class="form-grid">
+    <div class="form-field"><label for="first_name">First name</label><input class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}"></div>
+    <div class="form-field"><label for="last_name">Last name</label><input class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}"></div>
+    <div class="form-field"><label for="email">Email</label><input class="form-control" id="email" name="email" type="email" value="{{ user.email }}"></div>
+    <div class="form-field"><label for="role">Workspace role</label>{% if user.is_staff or user.is_superuser %}<select class="form-control" id="role" name="role">{% for value,label in role_options %}<option value="{{ value }}" {% if profile.role == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>{% else %}<input class="form-control" value="{{ profile.get_role_display }}" disabled>{% endif %}</div>
+  </div><div class="form-actions"><button class="button button-primary" type="submit">Save profile</button></div></form>
+</section>
+{% endblock %}

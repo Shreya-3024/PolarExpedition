@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-intro">
+  <div><span class="eyebrow"><a href="{% url 'module_list' module %}">{{ config.title|upper }}</a> / RECORD DETAILS</span><h1>{{ record }}</h1><p>Review and update this operational record.</p></div>
+  <div class="button-row"><a class="button button-secondary" href="{% url 'module_list' module %}">Back to list</a><a class="button button-primary" href="{% url 'module_update' module record.pk %}">Edit record</a></div>
+</div>
+<section class="panel detail-panel"><dl class="detail-grid">{% for label,value in details %}<div><dt>{{ label }}</dt><dd>{{ value|default:"—"|linebreaksbr }}</dd></div>{% endfor %}</dl>
+  <div class="form-actions"><a class="button button-danger-outline" href="{% url 'module_delete' module record.pk %}">Delete {{ config.singular }}</a></div>
+</section>
+{% if history %}<section class="panel history-panel"><div class="panel-heading"><div><h2>{% if module == "assets" %}Asset history{% else %}Shipment history{% endif %}</h2><p>Automatically recorded changes and milestones</p></div></div><div class="history-list">{% for event in history %}<article><span class="history-marker"></span><div><strong>{{ event.summary }}</strong><small>{{ event.occurred_at|date:"d M Y · H:i" }}{% if module == "shipments" %} · {{ event.get_status_display }} · {{ event.progress }}%{% endif %}</small></div></article>{% empty %}<p class="empty-note">No history has been recorded yet.</p>{% endfor %}</div></section>{% endif %}
+{% endblock %}

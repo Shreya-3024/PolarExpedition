@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-intro dashboard-intro">
+  <div><span class="eyebrow">POLAR OPERATIONS / DAILY BRIEF</span><h1>Good day, {{ user.first_name|default:user.username }}.</h1><p>Here is the current picture across your expeditions, teams and supply network.</p></div>
+  <div class="weather-card"><span class="weather-mark">❄</span><span><strong>−28°</strong><small>McMurdo · Clear</small></span><i></i><span><strong>−17°</strong><small>Ny-Ålesund · Light snow</small></span></div>
+</div>
+<section class="stats-grid" aria-label="Operations summary">
+  <article class="stat-card"><span class="stat-symbol symbol-blue">⌖</span><span class="stat-label">Active expeditions</span><strong>{{ active_expeditions }}</strong><small>{{ planned_count }} planned next</small></article>
+  <article class="stat-card"><span class="stat-symbol symbol-violet">▣</span><span class="stat-label">Registered assets</span><strong>{{ asset_count }}</strong><small>Tracked in the system</small></article>
+  <article class="stat-card"><span class="stat-symbol symbol-green">▤</span><span class="stat-label">Available inventory</span><strong>{{ available_inventory }}</strong><small>{{ low_stock_count }} items need attention</small></article>
+  <article class="stat-card"><span class="stat-symbol symbol-cyan">⇢</span><span class="stat-label">Shipments in transit</span><strong>{{ shipments_in_transit }}</strong><small>Across active routes</small></article>
+  <article class="stat-card"><span class="stat-symbol symbol-orange">⚙</span><span class="stat-label">Pending maintenance</span><strong>{{ pending_maintenance }}</strong><small>Open service tasks</small></article>
+  <article class="stat-card"><span class="stat-symbol symbol-red">!</span><span class="stat-label">Critical alerts</span><strong>{{ critical_alerts }}</strong><small>Require attention</small></article>
+</section>
+<div class="dashboard-grid">
+  <section class="panel panel-large">
+    <div class="panel-heading"><div><h2>Expedition activity</h2><p>Current mission status across the network</p></div><a class="text-link" href="{% url 'module_list' 'expeditions' %}">All expeditions <span>→</span></a></div>
+    <div class="mission-summary"><strong>{{ expedition_count }}</strong><span>missions in the system</span><span class="live-pill"><i></i>{{ active_expeditions }} active</span></div>
+    <div class="activity-visual" aria-label="Expedition status overview">
+      <div class="chart-lines"><span>12</span><i></i><span>9</span><i></i><span>6</span><i></i><span>3</span><i></i><span>0</span></div>
+      <div class="bar-chart"><div class="bar-set"><i style="height:34%"></i><i style="height:51%"></i><i style="height:44%"></i><i style="height:67%"></i><i style="height:60%"></i><i style="height:78%"></i><i style="height:90%"></i><i style="height:73%"></i><i style="height:100%"></i><i style="height:84%"></i><i style="height:95%"></i><i style="height:80%"></i></div></div>
+      <div class="chart-months"><span>OCT</span><span>NOV</span><span>DEC</span><span>JAN</span><span>FEB</span><span>MAR</span></div>
+    </div>
+  </section>
+  <section class="panel">
+    <div class="panel-heading"><div><h2>Asset readiness</h2><p>Equipment availability snapshot</p></div><a class="more-link" href="{% url 'module_list' 'assets' %}">•••</a></div>
+    <div class="readiness"><div class="readiness-ring"><div><strong>{{ asset_count }}</strong><small>tracked</small></div></div><div class="legend"><span><i class="legend-green"></i>Available <b>{{ available_assets }}</b></span><span><i class="legend-blue"></i>Deployed <b>{{ deployed_assets }}</b></span><span><i class="legend-orange"></i>In service <b>{{ assets_in_maintenance }}</b></span></div></div>
+    <a class="panel-link" href="{% url 'module_list' 'assets' %}">Open asset register <span>→</span></a>
+  </section>
+  <section class="panel map-panel panel-large">
+    <div class="panel-heading"><div><h2>Polar operations map</h2><p>Stations, routes and expedition destinations</p></div><span class="live-pill"><i></i>Network status</span></div>
+    <div class="polar-map">
+      <div class="map-grid"></div><div class="map-land land-one"></div><div class="map-land land-two"></div><div class="map-land land-three"></div>
+      <svg viewBox="0 0 760 270" preserveAspectRatio="none" aria-hidden="true"><path d="M92 204 C210 70 336 232 462 105 S637 139 684 48" /><path d="M184 65 C286 180 439 48 591 183" /></svg>
+      <span class="map-station station-one"><i></i><b>McMurdo</b><small>Active expedition</small></span>
+      <span class="map-station station-two"><i></i><b>Ny-Ålesund</b><small>Station online</small></span>
+      <span class="map-station station-three"><i class="pin-warning"></i><b>Weddell Sea</b><small>Weather watch</small></span>
+      <div class="map-legend"><span><i class="legend-green"></i>Station</span><span><i class="route-key"></i>Supply route</span></div>
+    </div>
+  </section>
+  <section class="panel">
+    <div class="panel-heading"><div><h2>Critical alerts</h2><p>{{ critical_alerts }} need review</p></div><a class="more-link" href="{% url 'notifications' %}">•••</a></div>
+    <div class="compact-list">
+      {% for alert in critical_notifications %}<a class="alert-item" href="{% if alert.related_url %}{{ alert.related_url }}{% else %}{% url 'notifications' %}{% endif %}"><i class="alert-dot alert-{{ alert.severity }}"></i><span><strong>{{ alert.title }}</strong><small>{{ alert.message|truncatechars:68 }}</small></span></a>{% empty %}<p class="empty-note">No unread alerts. Your teams are in the clear.</p>{% endfor %}
+    </div>
+    <a class="panel-link" href="{% url 'notifications' %}">Review notifications <span>→</span></a>
+  </section>
+</div>
+<div class="dashboard-grid dashboard-bottom">
+  <section class="panel">
+    <div class="panel-heading"><div><h2>Expedition watchlist</h2><p>Recent and active missions</p></div><a class="text-link" href="{% url 'module_list' 'expeditions' %}">View all <span>→</span></a></div>
+    <div class="mini-table">
+      {% for expedition in recent_expeditions %}<a href="{% url 'module_detail' 'expeditions' expedition.pk %}"><span class="record-mark">⌖</span><span><strong>{{ expedition.name }}</strong><small>{{ expedition.destination }}</small></span><span class="status status-{{ expedition.status }}">{{ expedition.get_status_display }}</span></a>{% empty %}<p class="empty-note">No expeditions yet. Add your first mission to get started.</p>{% endfor %}
+    </div>
+  </section>
+  <section class="panel">
+    <div class="panel-heading"><div><h2>Upcoming maintenance</h2><p>Scheduled equipment service</p></div><a class="text-link" href="{% url 'module_list' 'maintenance' %}">Calendar <span>→</span></a></div>
+    <div class="mini-table">
+      {% for task in upcoming_maintenance %}<a href="{% url 'module_detail' 'maintenance' task.pk %}"><span class="date-tile"><b>{{ task.due_date|date:"d" }}</b><small>{{ task.due_date|date:"M" }}</small></span><span><strong>{{ task.title }}</strong><small>{{ task.asset.name }} · {{ task.assigned_to }}</small></span><span class="status status-{{ task.priority }}">{{ task.get_priority_display }}</span></a>{% empty %}<p class="empty-note">No upcoming maintenance tasks are scheduled.</p>{% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}
